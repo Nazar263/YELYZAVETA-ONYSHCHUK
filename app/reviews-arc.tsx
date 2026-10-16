@@ -87,31 +87,52 @@ function CardText({
  * flat in the centre, angled at the edges, with edge fade only.
  */
 export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
-  // Tuned for review cards (taller than image tiles). Keep visible gaps.
-  const tileHeight = 62; // % of hero height
-  const aspectRatio = 1.42; // width / height ~ 340 / 240
-  const gap = 8; // % of tile height
-  const axis = 52; // vertical centre %
-  const curve = 68; // degrees - moderate bend keeps gaps
-  const fade = 9; // % edge fade
-  const speed = 5; // seconds per tile
+  const baseTileHeight = 62;
+  const baseAspect = 1.42;
+  const baseGap = 8;
+  const baseCurve = 68;
+  const baseFade = 9;
+  const baseCamera = CAMERA;
+  const axis = 52;
+  const speed = 5;
 
   const ref = React.useRef<HTMLDivElement>(null);
   const id = React.useId().replace(/[^a-zA-Z0-9]/g, '');
   const orbit = `rv-o-${id}`;
   const tileClass = `rv-t-${id}`;
-  const bend = (Math.min(85, Math.max(5, curve)) * Math.PI) / 180;
 
   const [layout, setLayout] = React.useState<ReturnType<typeof measure> | null>(null);
   const [shown, setShown] = React.useState<Record<number, number>>({});
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
+  const [responsive, setResponsive] = React.useState({
+    tileHeight: baseTileHeight,
+    aspectRatio: baseAspect,
+    gap: baseGap,
+    curve: baseCurve,
+    fade: baseFade,
+    camera: baseCamera,
+  });
+
+  const getResponsive = React.useCallback((width: number) => {
+    if (width >= 1024 && width <= 1180) {
+      return { tileHeight: 70, aspectRatio: 1.32, gap: 9, curve: 48, fade: 10, camera: 2.3 };
+    }
+    if (width >= 768 && width < 1024) {
+      return { tileHeight: 70, aspectRatio: 1.30, gap: 11, curve: 42, fade: 11, camera: 2.7 };
+    }
+    return { tileHeight: baseTileHeight, aspectRatio: baseAspect, gap: baseGap, curve: baseCurve, fade: baseFade, camera: baseCamera };
+  }, []);
 
   React.useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      const next = measure(width, height, tileHeight, aspectRatio, gap, bend);
+      const vw = window.innerWidth;
+      const cfg = getResponsive(vw);
+      setResponsive(cfg);
+      const bend = (Math.min(85, Math.max(5, cfg.curve)) * Math.PI) / 180;
+      const next = measure(width, height, cfg.tileHeight, cfg.aspectRatio, cfg.gap, bend);
       setLayout((prev) =>
         prev?.columns === next.columns &&
         prev.sweep === next.sweep &&
@@ -121,16 +142,40 @@ export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
       );
     });
     ro.observe(el);
-    return () => ro.disconnect();
-  }, [tileHeight, aspectRatio, gap, bend]);
+    const onResize = () => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const cfg = getResponsive(vw);
+      setResponsive(cfg);
+      const bend = (Math.min(85, Math.max(5, cfg.curve)) * Math.PI) / 180;
+      const next = measure(rect.width, rect.height, cfg.tileHeight, cfg.aspectRatio, cfg.gap, bend);
+      setLayout((prev) =>
+        prev?.columns === next.columns &&
+        prev.sweep === next.sweep &&
+        prev.unit === next.unit
+          ? prev
+          : next,
+      );
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, [getResponsive]);
 
+  const bend = (Math.min(85, Math.max(5, responsive.curve)) * Math.PI) / 180;
+  const arcForCam = (b: number, cam: number) => (cam - 1 + Math.cos(b)) / (2 * cam * Math.sin(b));
   const { columns, sweep, unit, limit } =
-    layout ?? measure(1200, 400, tileHeight, aspectRatio, gap, bend);
+    layout ?? measure(1200, 400, responsive.tileHeight, responsive.aspectRatio, responsive.gap, bend);
 
   const u = (n: number) =>
-    `calc(${+n.toFixed(4)} * min(${tileHeight}cqh, ${+(MAX_WIDTH / aspectRatio).toFixed(4)}cqw))`;
+    `calc(${+n.toFixed(4)} * min(${responsive.tileHeight}cqh, ${+(MAX_WIDTH / responsive.aspectRatio).toFixed(4)}cqw))`;
 
-  const r = 100 * arc(bend);
+  const r = 100 * arcForCam(bend, responsive.camera);
   const radius = `${+r.toFixed(3)}cqw`;
   const turn = (deg: number) =>
     `translateZ(${radius}) rotateY(${+deg.toFixed(4)}deg) translateZ(-${radius})`;
@@ -144,7 +189,7 @@ export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
     `@media(prefers-reduced-motion:reduce){.${tileClass}{animation-play-state:paused}}`;
 
   const duration = columns * speed;
-  const mask = `linear-gradient(90deg,transparent,#000 ${fade}%,#000 ${100 - fade}%,transparent)`;
+  const mask = `linear-gradient(90deg,transparent,#000 ${responsive.fade}%,#000 ${100 - responsive.fade}%,transparent)`;
 
   // Pause on hover/focus/expanded via CSS + class
   const isPaused = !!expandedId;
@@ -178,7 +223,7 @@ export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
           className="pointer-events-none absolute inset-0 transition-opacity duration-500"
           style={{
             opacity: layout ? 1 : 0,
-            perspective: `${+(r * CAMERA).toFixed(3)}cqw`,
+            perspective: `${+(r * responsive.camera).toFixed(3)}cqw`,
             perspectiveOrigin: `50% ${axis}%`,
             maskImage: mask,
             WebkitMaskImage: mask,
@@ -195,9 +240,9 @@ export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
                 key={t}
                 className={`${tileClass} absolute`}
                 style={{
-                  left: `calc(50% - ${u(aspectRatio / 2)})`,
+                  left: `calc(50% - ${u(responsive.aspectRatio / 2)})`,
                   top: `calc(${axis}% - ${u(0.5)})`,
-                  width: u(aspectRatio),
+                  width: u(responsive.aspectRatio),
                   height: u(1),
                   transformStyle: 'preserve-3d',
                   animation: `${orbit} ${duration}s linear ${-t * speed}s infinite`,

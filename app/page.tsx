@@ -465,8 +465,8 @@ export default function Home() {
           </figure>
           <figure className="media-card media-work media-work-top">
             <Image
-              src="/images/work-1.jpg"
-              alt="Hair work by Yelyzaveta"
+              src="/images/hero-work-1.jpg"
+              alt="Yelyzaveta consulting a client - hair diagnosis"
               fill
               sizes="(max-width: 600px) 46vw, 21vw"
               className="media-image"
@@ -474,8 +474,8 @@ export default function Home() {
           </figure>
           <figure className="media-card media-work media-work-bottom">
             <Image
-              src="/images/work-2.jpg"
-              alt="Hair work by Yelyzaveta"
+              src="/images/hero-work-2.jpg"
+              alt="Yelyzaveta straightening hair with iron"
               fill
               sizes="(max-width: 600px) 46vw, 21vw"
               className="media-image"
@@ -526,16 +526,32 @@ export default function Home() {
           </h2>
           <span className="about-rule" aria-hidden="true" />
           <div className="about-text about-reveal about-reveal-3">
+            <p>Let’s get to know each other — I’m Yelyzaveta 🤍</p>
             <p>
-              Hello, I’m Yelyzaveta, the hair specialist at Brunetkaa Hair in London. I work
-              with smoothing and reconstruction treatments, and I like to keep the process
-              straightforward — from the first message to the finished result.
+              I’m a hair specialist with 4 years of experience in hair smoothing and
+              reconstruction treatments.
             </p>
             <p>
-              Every head of hair behaves differently, so I start with a conversation: how your
-              hair is now, how you look after it, and the result you have in mind. Together we
-              can decide which treatment may suit you — or whether it is better to wait.
+              For me, beautiful hair is about more than just smoothness and shine. It’s about
+              softness, manageability, a healthy-looking finish, and feeling confident every
+              day.
             </p>
+            <p>
+              I work with different hair types and tailor every treatment to your individual
+              needs, taking into account your hair’s condition, colouring history, natural
+              texture, and desired results.
+            </p>
+            <p>
+              My approach goes beyond the immediate transformation. I believe beautiful results
+              start with understanding your hair. That’s why I never recommend the same
+              treatment to everyone. We begin with a consultation, assess your hair’s needs,
+              and choose the most suitable approach together.
+            </p>
+            <p>
+              My goal is to make your hair easier to manage, your routine simpler, and every
+              mirror moment a little more special.
+            </p>
+            <p>I look forward to welcoming you to Brunetkaa Hair in Canary Wharf, London. ✨</p>
           </div>
           <div className="about-cta about-reveal about-reveal-4">
             <button

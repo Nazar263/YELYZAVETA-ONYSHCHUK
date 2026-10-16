@@ -200,6 +200,7 @@ summary:focus-visible {
   position: relative;
   color: #cbc4b8;
   font-size: 12px;
+  white-space: nowrap;
   transition: color 180ms ease;
 }
 
@@ -1251,7 +1252,7 @@ h2 em {
 
 .rc-arrows {
   position: absolute;
-  inset: -30px -46px;
+  inset: 0;
   z-index: 1;
   overflow: visible;
   pointer-events: none;
@@ -1407,7 +1408,8 @@ h2 em {
     margin-top: 34px;
     transform: none;
   }
-
+}
+@media (max-width: 768px) {
   .rc-grid {
     grid-template-columns: minmax(0, 360px);
     row-gap: 36px;
@@ -1461,6 +1463,27 @@ h2 em {
 
   .results-section {
     padding-bottom: 96px;
+  }
+}
+@media (min-width: 768px) and (max-width: 1180px) {
+  .results-section {
+    padding-block: 64px 72px !important;
+  }
+  .reviews-section {
+    padding-block: 60px 72px !important;
+  }
+  .faq-section {
+    padding-block: 56px 64px !important;
+  }
+  .contact-inner {
+    padding-block: 56px !important;
+  }
+  .rv-text {
+    font-size: 15.5px !important;
+    line-height: 1.6 !important;
+  }
+  .rv-ribbon {
+    height: 360px !important;
   }
 }
 
@@ -1588,6 +1611,8 @@ h2 em {
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   transform: translate(-50%, -50%);
+  pointer-events: auto;
+  touch-action: none;
 }
 
 .ba-handle::before {
@@ -1595,6 +1620,11 @@ h2 em {
   position: absolute;
   inset: -6px;
   border-radius: 50%;
+}
+
+.ba-handle-hit {
+  touch-action: none;
+  pointer-events: auto;
 }
 
 .ba-keyboard-control {
@@ -1606,6 +1636,7 @@ h2 em {
   margin-left: -24px;
   border-radius: 8px;
   touch-action: pan-y;
+  pointer-events: none;
 }
 
 .ba-keyboard-control:focus-visible {
@@ -3115,6 +3146,7 @@ h2 em {
 
   .desktop-nav a {
     font-size: 11px;
+    white-space: nowrap;
   }
 
   .hero {
@@ -3123,6 +3155,45 @@ h2 em {
 
   .service-body {
     gap: 12px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .header-inner {
+    height: 70px;
+    gap: 16px;
+  }
+
+  .brand {
+    flex-shrink: 0;
+  }
+
+  .header-book {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 0 16px;
+    font-size: 12px;
+    min-height: 42px;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ivory);
+    cursor: pointer;
+  }
+
+  .desktop-nav a {
+    white-space: nowrap;
   }
 }
 

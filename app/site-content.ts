@@ -145,7 +145,7 @@ export const faqs = [
   },
   {
     question: 'Where is Brunetkaa Hair?',
-    answer: 'The listed location is London E14 9TS, United Kingdom.',
+    answer: 'The listed location is London E14 9RP, United Kingdom.',
   },
   {
     question: 'How can I book?',

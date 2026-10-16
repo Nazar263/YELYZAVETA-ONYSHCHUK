@@ -28,6 +28,7 @@ export default function BeforeAfterSlider({
   const frameRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const startRef = useRef<{ x: number; y: number } | null>(null);
+  const activePointerIdRef = useRef<number | null>(null);
 
   const updateFromClientX = (clientX: number) => {
     const rect = frameRef.current?.getBoundingClientRect();
@@ -36,9 +37,15 @@ export default function BeforeAfterSlider({
     setPos(clamp(next));
   };
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+  const isHandleTarget = (target: EventTarget | null) =>
+    target instanceof Element && !!target.closest('.ba-handle-hit');
+
+  const handleFramePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== null) return;
+    if (isHandleTarget(event.target)) return;
     const isMouse = event.pointerType === 'mouse';
     if (isMouse) {
+      activePointerIdRef.current = event.pointerId;
       draggingRef.current = true;
       setIsDragging(true);
       try {
@@ -47,17 +54,18 @@ export default function BeforeAfterSlider({
       updateFromClientX(event.clientX);
     } else {
       startRef.current = { x: event.clientX, y: event.clientY };
+      activePointerIdRef.current = event.pointerId;
     }
   };
 
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handleFramePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== null && event.pointerId !== activePointerIdRef.current) return;
     if (draggingRef.current) {
       updateFromClientX(event.clientX);
       return;
     }
-    if (event.pointerType === 'mouse') {
-      return;
-    }
+    if (event.pointerType === 'mouse') return;
+    if (isHandleTarget(event.target)) return;
     const start = startRef.current;
     if (!start) return;
     const dx = event.clientX - start.x;
@@ -71,40 +79,70 @@ export default function BeforeAfterSlider({
       updateFromClientX(event.clientX);
     } else if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) {
       startRef.current = null;
+      activePointerIdRef.current = null;
     }
   };
 
-  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (draggingRef.current) {
+  const handleFramePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== null && event.pointerId !== activePointerIdRef.current) return;
+    const wasDragging = draggingRef.current;
+    if (wasDragging) {
       try {
         if (event.currentTarget.hasPointerCapture(event.pointerId)) {
           event.currentTarget.releasePointerCapture(event.pointerId);
         }
       } catch {}
-    } else if (startRef.current && event.pointerType !== 'mouse') {
-      // Tap without drag — move divider to tap position
+    } else if (startRef.current && event.pointerType !== 'mouse' && !isHandleTarget(event.target)) {
       updateFromClientX(event.clientX);
     }
     draggingRef.current = false;
     setIsDragging(false);
     startRef.current = null;
+    activePointerIdRef.current = null;
   };
 
-  const handlePointerCancel = () => {
+  const handleFramePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== null && event.pointerId !== activePointerIdRef.current) return;
     draggingRef.current = false;
     setIsDragging(false);
     startRef.current = null;
+    activePointerIdRef.current = null;
+  };
+
+  const handleFrameLostPointerCapture = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (activePointerIdRef.current !== null && event.pointerId !== activePointerIdRef.current) return;
+    draggingRef.current = false;
+    setIsDragging(false);
+    startRef.current = null;
+    activePointerIdRef.current = null;
+  };
+
+  const handleHandlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== null) return;
+    event.preventDefault();
+    event.stopPropagation();
+    activePointerIdRef.current = event.pointerId;
+    draggingRef.current = true;
+    setIsDragging(true);
+    startRef.current = null;
+    try {
+      const frame = frameRef.current;
+      if (frame) frame.setPointerCapture(event.pointerId);
+      else (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    } catch {}
+    updateFromClientX(event.clientX);
   };
 
   return (
     <div
       ref={frameRef}
       className={`ba-frame${isDragging ? ' is-dragging' : ''}`}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerCancel}
-      onLostPointerCapture={handlePointerCancel}
+      onPointerDown={handleFramePointerDown}
+      onPointerMove={handleFramePointerMove}
+      onPointerUp={handleFramePointerUp}
+      onPointerCancel={handleFramePointerCancel}
+      onLostPointerCapture={handleFrameLostPointerCapture}
       onClick={(e) => e.preventDefault()}
     >
       <Image
@@ -132,7 +170,12 @@ export default function BeforeAfterSlider({
       <span className="ba-label ba-label-after">After</span>
 
       <div className="ba-divider" style={{ left: `${pos}%` }} aria-hidden="true">
-        <span className="ba-handle">
+        <span
+          className="ba-handle ba-handle-hit"
+          onPointerDown={handleHandlePointerDown}
+          style={{ touchAction: 'none' }}
+          aria-hidden="true"
+        >
           <MoveHorizontal size={16} strokeWidth={1.6} />
         </span>
       </div>
