@@ -1287,6 +1287,34 @@ h2 em {
   left: 38%;
 }
 
+.rc-mobile-arrows {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rc-mobile-arrow {
+  position: absolute;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  margin-left: -14px;
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+.rc-mobile-arrow-svg {
+  width: 24px;
+  height: 28px;
+  display: block;
+}
+
 /* ---- Staged scroll scene (single run, no scroll locking) ---- */
 .results-section .section-heading {
   opacity: 0;
@@ -1363,6 +1391,17 @@ h2 em {
   }
 }
 
+@keyframes rcMobileArrowIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 899px) {
   .results-collage {
     margin-top: 34px;
@@ -1371,7 +1410,7 @@ h2 em {
 
   .rc-grid {
     grid-template-columns: minmax(0, 360px);
-    row-gap: 28px;
+    row-gap: 36px;
     justify-content: center;
     max-width: 100%;
   }
@@ -1399,33 +1438,29 @@ h2 em {
   }
 
   .rc-arrows {
-    inset: 0;
+    display: none;
   }
 
-  .rc-arrow {
-    left: 50%;
-    width: 104px;
-    margin-left: -52px;
-    transform-origin: center;
+  .rc-mobile-arrows {
+    display: block;
   }
 
-  .rc-arrow-1 { top: 24%; transform: translateX(-50%) rotate(78deg); }
-  .rc-arrow-2 { top: 49%; transform: translateX(-50%) rotate(78deg); }
-  .rc-arrow-3 { top: 74%; bottom: auto; transform: translateX(-50%) rotate(78deg); }
+  .rc-mobile-arrow-1 { top: calc(24% - 6px); }
+  .rc-mobile-arrow-2 { top: calc(49% - 6px); }
+  .rc-mobile-arrow-3 { top: calc(74% - 6px); }
+
+  .results-section.is-inview .rc-mobile-arrow {
+    animation: rcMobileArrowIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--rd, 550ms) * 0.4);
+  }
 
   /* Shorter sequential rhythm on phones. */
   .results-section.is-inview .rc-item {
     animation-delay: calc(var(--rd, 150ms) * 0.4);
   }
 
-  .results-section.is-inview .rc-arrow {
-    animation-delay: calc(var(--rd, 550ms) * 0.4);
-  }
-
-  .results-section.is-inview .rc-arrow-1,
-  .results-section.is-inview .rc-arrow-2,
-  .results-section.is-inview .rc-arrow-3 {
-    animation-name: rcArrowIn;
+  .results-section {
+    padding-bottom: 96px;
   }
 }
 
@@ -1464,17 +1499,31 @@ h2 em {
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.ba-frame.is-dragging {
+  cursor: grabbing;
+}
+
+.ba-frame.is-dragging .ba-before-layer,
+.ba-frame.is-dragging .ba-divider,
+.ba-frame.is-dragging .ba-handle {
+  transition: none !important;
 }
 
 .ba-before-layer {
   position: absolute;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
 }
 
 .ba-image {
   object-fit: cover;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .ba-label {
@@ -1495,6 +1544,7 @@ h2 em {
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+  pointer-events: none;
 }
 
 .ba-label-before {
@@ -1527,12 +1577,12 @@ h2 em {
   top: 50%;
   left: 50%;
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   place-items: center;
   border: 1px solid rgba(196, 162, 107, 0.85);
   border-radius: 50%;
-  background: rgba(18, 16, 12, 0.78);
+  background: rgba(18, 16, 12, 0.88);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 245, 225, 0.18);
   color: var(--gold);
   -webkit-backdrop-filter: blur(6px);
@@ -1540,14 +1590,22 @@ h2 em {
   transform: translate(-50%, -50%);
 }
 
+.ba-handle::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+}
+
 .ba-keyboard-control {
   position: absolute;
   top: 0;
   bottom: 0;
   z-index: 5;
-  width: 44px;
-  margin-left: -22px;
-  border-radius: 6px;
+  width: 48px;
+  margin-left: -24px;
+  border-radius: 8px;
+  touch-action: pan-y;
 }
 
 .ba-keyboard-control:focus-visible {
@@ -3642,7 +3700,7 @@ h2 em {
   }
 
   .results-section {
-    padding-block: 65px 68px;
+    padding-block: 65px 96px;
   }
 
   .service-body {

@@ -24,71 +24,88 @@ export default function BeforeAfterSlider({
   label,
 }: BeforeAfterSliderProps) {
   const [pos, setPos] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
-  const startRef = useRef<{ x: number; y: number; pos: number } | null>(null);
+  const startRef = useRef<{ x: number; y: number } | null>(null);
 
   const updateFromClientX = (clientX: number) => {
     const rect = frameRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
-    setPos(clamp(((clientX - rect.left) / rect.width) * 100));
+    const next = ((clientX - rect.left) / rect.width) * 100;
+    setPos(clamp(next));
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const isMouse = event.pointerType === 'mouse';
+    if (isMouse) {
+      draggingRef.current = true;
+      setIsDragging(true);
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {}
+      updateFromClientX(event.clientX);
+    } else {
+      startRef.current = { x: event.clientX, y: event.clientY };
+    }
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (draggingRef.current) {
+      updateFromClientX(event.clientX);
+      return;
+    }
+    if (event.pointerType === 'mouse') {
+      return;
+    }
+    const start = startRef.current;
+    if (!start) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      draggingRef.current = true;
+      setIsDragging(true);
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {}
+      updateFromClientX(event.clientX);
+    } else if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) {
+      startRef.current = null;
+    }
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (draggingRef.current) {
+      try {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+      } catch {}
+    } else if (startRef.current && event.pointerType !== 'mouse') {
+      // Tap without drag — move divider to tap position
+      updateFromClientX(event.clientX);
+    }
+    draggingRef.current = false;
+    setIsDragging(false);
+    startRef.current = null;
+  };
+
+  const handlePointerCancel = () => {
+    draggingRef.current = false;
+    setIsDragging(false);
+    startRef.current = null;
   };
 
   return (
     <div
       ref={frameRef}
-      className="ba-frame"
-      onPointerDown={(event) => {
-        // Mouse: capture the pointer so hover-tracking keeps working even if
-        // the cursor briefly leaves the frame. Touch: wait for a
-        // predominantly horizontal move so vertical page scroll stays native.
-        if (event.pointerType === 'mouse') {
-          draggingRef.current = true;
-          event.currentTarget.setPointerCapture(event.pointerId);
-          updateFromClientX(event.clientX);
-        } else {
-          startRef.current = { x: event.clientX, y: event.clientY, pos };
-        }
-      }}
-      onPointerMove={(event) => {
-        // Mouse: follow the cursor on hover — no click needed.
-        if (event.pointerType === 'mouse') {
-          updateFromClientX(event.clientX);
-          return;
-        }
-        if (draggingRef.current) {
-          updateFromClientX(event.clientX);
-          return;
-        }
-        const start = startRef.current;
-        if (!start) return;
-        const dx = event.clientX - start.x;
-        const dy = event.clientY - start.y;
-        if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-          draggingRef.current = true;
-          try {
-            event.currentTarget.setPointerCapture(event.pointerId);
-          } catch {
-            // ignore — pointer may already be released
-          }
-          updateFromClientX(event.clientX);
-        } else if (Math.abs(dy) > 14 && Math.abs(dy) >= Math.abs(dx)) {
-          // Vertical scroll gesture — let the browser take it.
-          startRef.current = null;
-        }
-      }}
-      onPointerUp={() => {
-        draggingRef.current = false;
-        startRef.current = null;
-      }}
-      onPointerCancel={() => {
-        draggingRef.current = false;
-        startRef.current = null;
-      }}
-      onLostPointerCapture={() => {
-        draggingRef.current = false;
-        startRef.current = null;
-      }}
+      className={`ba-frame${isDragging ? ' is-dragging' : ''}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onLostPointerCapture={handlePointerCancel}
+      onClick={(e) => e.preventDefault()}
     >
       <Image
         className="ba-image"

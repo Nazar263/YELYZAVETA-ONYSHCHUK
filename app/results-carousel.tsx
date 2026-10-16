@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import type { CSSProperties } from 'react';
 import type { ResultPair } from './results-data';
 import BeforeAfterSlider from './before-after-slider';
@@ -60,6 +61,15 @@ function CollageArrow({ id, reverse = false }: { id: string; reverse?: boolean }
   );
 }
 
+function MobileDownArrow() {
+  return (
+    <svg viewBox="0 0 24 28" fill="none" aria-hidden="true" focusable="false" className="rc-mobile-arrow-svg">
+      <path d="M12 2 L12 20" stroke="#c4a26b" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M7 15 L12 21 L17 15" stroke="#c4a26b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+}
+
 export default function ResultsCarousel({ pairs }: { pairs: ResultPair[] }) {
   return (
     <div
@@ -78,14 +88,41 @@ export default function ResultsCarousel({ pairs }: { pairs: ResultPair[] }) {
           >
             <div className="rc-tilt">
               <div className="rc-card">
-                <BeforeAfterSlider
-                  beforeSrc={pair.before.src}
-                  afterSrc={pair.after.src}
-                  beforeAlt={pair.before.alt}
-                  afterAlt={pair.after.alt}
-                  sizes={slideSizes}
-                  label={pair.controlLabel}
-                />
+                {pair.layout === 'side-by-side' ? (
+                  <div className="ba-pair">
+                    <figure className="ba-pair-item">
+                      <Image
+                        src={pair.before.src}
+                        alt={pair.before.alt}
+                        fill
+                        sizes={slideSizes}
+                        className="ba-image"
+                        draggable={false}
+                      />
+                      <span className="ba-label ba-label-before">Before</span>
+                    </figure>
+                    <figure className="ba-pair-item">
+                      <Image
+                        src={pair.after.src}
+                        alt={pair.after.alt}
+                        fill
+                        sizes={slideSizes}
+                        className="ba-image"
+                        draggable={false}
+                      />
+                      <span className="ba-label ba-label-after">After</span>
+                    </figure>
+                  </div>
+                ) : (
+                  <BeforeAfterSlider
+                    beforeSrc={pair.before.src}
+                    afterSrc={pair.after.src}
+                    beforeAlt={pair.before.alt}
+                    afterAlt={pair.after.alt}
+                    sizes={slideSizes}
+                    label={pair.controlLabel}
+                  />
+                )}
                 <p className="result-slide-caption">Example {slideIndex + 1}</p>
               </div>
             </div>
@@ -110,6 +147,17 @@ export default function ResultsCarousel({ pairs }: { pairs: ResultPair[] }) {
             style={{ '--rd': `${ARROW_DELAYS[2]}ms` } as CSSProperties}
           >
             <CollageArrow id="rc-arrow-head-3" />
+          </div>
+        </div>
+        <div className="rc-mobile-arrows" aria-hidden="true">
+          <div className="rc-mobile-arrow rc-mobile-arrow-1" style={{ '--rd': `${ARROW_DELAYS[0]}ms` } as CSSProperties}>
+            <MobileDownArrow />
+          </div>
+          <div className="rc-mobile-arrow rc-mobile-arrow-2" style={{ '--rd': `${ARROW_DELAYS[1]}ms` } as CSSProperties}>
+            <MobileDownArrow />
+          </div>
+          <div className="rc-mobile-arrow rc-mobile-arrow-3" style={{ '--rd': `${ARROW_DELAYS[2]}ms` } as CSSProperties}>
+            <MobileDownArrow />
           </div>
         </div>
       </div>

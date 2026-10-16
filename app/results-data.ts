@@ -9,7 +9,7 @@ export type ResultPair = {
 export const resultPairs: ResultPair[] = [
   {
     id: 'pair-01',
-    layout: 'slider',
+    layout: 'side-by-side',
     before: {
       src: '/images/results/pair-01/before.webp',
       alt: 'Hair before treatment — example 1',
