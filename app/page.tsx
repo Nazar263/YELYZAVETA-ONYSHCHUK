@@ -553,15 +553,6 @@ export default function Home() {
             </p>
             <p>I look forward to welcoming you to Brunetkaa Hair in Canary Wharf, London. ✨</p>
           </div>
-          <div className="about-cta about-reveal about-reveal-4">
-            <button
-              className="button button-gold"
-              type="button"
-              onClick={() => scrollToBooking()}
-            >
-              <MessageCircle size={17} aria-hidden="true" /> Book an appointment
-            </button>
-          </div>
         </div>
       </section>
 

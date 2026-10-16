@@ -801,10 +801,6 @@ h2 em {
   margin-top: 16px;
 }
 
-.about-cta {
-  margin-top: 34px;
-}
-
 .about-reveal {
   --reveal-delay: 0ms;
   opacity: 0;
@@ -829,10 +825,6 @@ h2 em {
 
 .about-reveal-3 {
   --reveal-delay: 280ms;
-}
-
-.about-reveal-4 {
-  --reveal-delay: 380ms;
 }
 
 .section-heading h2,
@@ -1642,6 +1634,45 @@ h2 em {
 .ba-keyboard-control:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
+}
+
+.ba-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px 12px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ba-hint svg {
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.rc-card .ba-hint {
+  border-top: 1px solid var(--line);
+}
+
+.ba-hint-text-touch {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ba-hint-text-pointer {
+    display: none;
+  }
+
+  .ba-hint-text-touch {
+    display: inline;
+  }
 }
 
 .ba-pair {
@@ -3746,10 +3777,6 @@ h2 em {
   .about-text p {
     font-size: 14px;
     line-height: 1.75;
-  }
-
-  .about-cta {
-    margin-top: 27px;
   }
 
   .services-section {

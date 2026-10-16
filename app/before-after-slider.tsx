@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { MoveHorizontal } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type BeforeAfterSliderProps = {
   beforeSrc: string;
@@ -15,6 +15,12 @@ type BeforeAfterSliderProps = {
 
 const clamp = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
 
+const DEMO_FROM = 15;
+const DEMO_TO = 50;
+const DEMO_DURATION_MS = 1050;
+
+type DemoState = 'idle' | 'running' | 'done';
+
 export default function BeforeAfterSlider({
   beforeSrc,
   afterSrc,
@@ -25,10 +31,91 @@ export default function BeforeAfterSlider({
 }: BeforeAfterSliderProps) {
   const [pos, setPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [imagesReady, setImagesReady] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const startRef = useRef<{ x: number; y: number } | null>(null);
   const activePointerIdRef = useRef<number | null>(null);
+  const demoStateRef = useRef<DemoState>('idle');
+  const demoRafRef = useRef<number | null>(null);
+
+  const cancelDemo = () => {
+    if (demoStateRef.current === 'done') return;
+    demoStateRef.current = 'done';
+    if (demoRafRef.current !== null) {
+      cancelAnimationFrame(demoRafRef.current);
+      demoRafRef.current = null;
+    }
+  };
+
+  const checkImagesReady = () => {
+    const images = frameRef.current?.querySelectorAll('img');
+    if (!images || images.length === 0) return;
+    const allReady = Array.from(images).every(
+      (image) => image.complete && image.naturalWidth > 0,
+    );
+    if (allReady) setImagesReady(true);
+  };
+
+  useEffect(() => {
+    const node = frameRef.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    checkImagesReady();
+  }, [isInView]);
+
+  useEffect(() => {
+    if (!isInView || !imagesReady) return;
+    if (demoStateRef.current !== 'idle') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      demoStateRef.current = 'done';
+      return;
+    }
+    demoStateRef.current = 'running';
+    setPos(DEMO_FROM);
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / DEMO_DURATION_MS);
+      const eased = 1 - Math.pow(1 - t, 5);
+      setPos(Math.round(DEMO_FROM + (DEMO_TO - DEMO_FROM) * eased));
+      if (t < 1) {
+        demoRafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      demoRafRef.current = null;
+      demoStateRef.current = 'done';
+    };
+    demoRafRef.current = requestAnimationFrame(tick);
+  }, [isInView, imagesReady]);
+
+  useEffect(
+    () => () => {
+      if (demoRafRef.current !== null) {
+        cancelAnimationFrame(demoRafRef.current);
+        demoRafRef.current = null;
+      }
+      if (demoStateRef.current === 'running') demoStateRef.current = 'idle';
+    },
+    [],
+  );
 
   const updateFromClientX = (clientX: number) => {
     const rect = frameRef.current?.getBoundingClientRect();
@@ -41,6 +128,7 @@ export default function BeforeAfterSlider({
     target instanceof Element && !!target.closest('.ba-handle-hit');
 
   const handleFramePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    cancelDemo();
     if (activePointerIdRef.current !== null) return;
     if (isHandleTarget(event.target)) return;
     const isMouse = event.pointerType === 'mouse';
@@ -59,12 +147,16 @@ export default function BeforeAfterSlider({
   };
 
   const handleFramePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    cancelDemo();
     if (activePointerIdRef.current !== null && event.pointerId !== activePointerIdRef.current) return;
     if (draggingRef.current) {
       updateFromClientX(event.clientX);
       return;
     }
-    if (event.pointerType === 'mouse') return;
+    if (event.pointerType === 'mouse') {
+      updateFromClientX(event.clientX);
+      return;
+    }
     if (isHandleTarget(event.target)) return;
     const start = startRef.current;
     if (!start) return;
@@ -119,6 +211,7 @@ export default function BeforeAfterSlider({
   };
 
   const handleHandlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    cancelDemo();
     if (activePointerIdRef.current !== null) return;
     event.preventDefault();
     event.stopPropagation();
@@ -135,87 +228,98 @@ export default function BeforeAfterSlider({
   };
 
   return (
-    <div
-      ref={frameRef}
-      className={`ba-frame${isDragging ? ' is-dragging' : ''}`}
-      onPointerDown={handleFramePointerDown}
-      onPointerMove={handleFramePointerMove}
-      onPointerUp={handleFramePointerUp}
-      onPointerCancel={handleFramePointerCancel}
-      onLostPointerCapture={handleFrameLostPointerCapture}
-      onClick={(e) => e.preventDefault()}
-    >
-      <Image
-        className="ba-image"
-        src={afterSrc}
-        alt={afterAlt}
-        fill
-        sizes={sizes}
-        loading="lazy"
-        draggable={false}
-      />
-      <div className="ba-before-layer" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+    <>
+      <div
+        ref={frameRef}
+        className={`ba-frame${isDragging ? ' is-dragging' : ''}`}
+        onPointerDown={handleFramePointerDown}
+        onPointerMove={handleFramePointerMove}
+        onPointerUp={handleFramePointerUp}
+        onPointerCancel={handleFramePointerCancel}
+        onLostPointerCapture={handleFrameLostPointerCapture}
+        onClick={(e) => e.preventDefault()}
+      >
         <Image
           className="ba-image"
-          src={beforeSrc}
-          alt={beforeAlt}
+          src={afterSrc}
+          alt={afterAlt}
           fill
           sizes={sizes}
           loading="lazy"
           draggable={false}
+          onLoad={checkImagesReady}
+        />
+        <div className="ba-before-layer" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+          <Image
+            className="ba-image"
+            src={beforeSrc}
+            alt={beforeAlt}
+            fill
+            sizes={sizes}
+            loading="lazy"
+            draggable={false}
+            onLoad={checkImagesReady}
+          />
+        </div>
+
+        <span className="ba-label ba-label-before">Before</span>
+        <span className="ba-label ba-label-after">After</span>
+
+        <div className="ba-divider" style={{ left: `${pos}%` }} aria-hidden="true">
+          <span
+            className="ba-handle ba-handle-hit"
+            onPointerDown={handleHandlePointerDown}
+            style={{ touchAction: 'none' }}
+            aria-hidden="true"
+          >
+            <MoveHorizontal size={16} strokeWidth={1.6} />
+          </span>
+        </div>
+
+        <div
+          className="ba-keyboard-control"
+          role="slider"
+          tabIndex={0}
+          aria-label={label}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={pos}
+          aria-valuetext={`Before ${pos}%, after ${100 - pos}%`}
+          style={{ left: `${pos}%` }}
+          onKeyDown={(event) => {
+            cancelDemo();
+            const step = 5;
+            switch (event.key) {
+              case 'ArrowLeft':
+              case 'ArrowDown':
+                setPos((value) => clamp(value - step));
+                event.preventDefault();
+                break;
+              case 'ArrowRight':
+              case 'ArrowUp':
+                setPos((value) => clamp(value + step));
+                event.preventDefault();
+                break;
+              case 'Home':
+                setPos(0);
+                event.preventDefault();
+                break;
+              case 'End':
+                setPos(100);
+                event.preventDefault();
+                break;
+              default:
+                break;
+            }
+          }}
         />
       </div>
 
-      <span className="ba-label ba-label-before">Before</span>
-      <span className="ba-label ba-label-after">After</span>
-
-      <div className="ba-divider" style={{ left: `${pos}%` }} aria-hidden="true">
-        <span
-          className="ba-handle ba-handle-hit"
-          onPointerDown={handleHandlePointerDown}
-          style={{ touchAction: 'none' }}
-          aria-hidden="true"
-        >
-          <MoveHorizontal size={16} strokeWidth={1.6} />
-        </span>
-      </div>
-
-      <div
-        className="ba-keyboard-control"
-        role="slider"
-        tabIndex={0}
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={pos}
-        aria-valuetext={`Before ${pos}%, after ${100 - pos}%`}
-        style={{ left: `${pos}%` }}
-        onKeyDown={(event) => {
-          const step = 5;
-          switch (event.key) {
-            case 'ArrowLeft':
-            case 'ArrowDown':
-              setPos((value) => clamp(value - step));
-              event.preventDefault();
-              break;
-            case 'ArrowRight':
-            case 'ArrowUp':
-              setPos((value) => clamp(value + step));
-              event.preventDefault();
-              break;
-            case 'Home':
-              setPos(0);
-              event.preventDefault();
-              break;
-            case 'End':
-              setPos(100);
-              event.preventDefault();
-              break;
-            default:
-              break;
-          }
-        }}
-      />
-    </div>
+      <p className="ba-hint">
+        <MoveHorizontal size={13} strokeWidth={1.6} aria-hidden="true" />
+        <span className="ba-hint-text ba-hint-text-pointer">Move your cursor to compare</span>
+        <span className="ba-hint-text ba-hint-text-touch">Drag to compare</span>
+      </p>
+    </>
   );
 }
