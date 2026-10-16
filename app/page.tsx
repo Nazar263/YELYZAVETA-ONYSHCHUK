@@ -20,9 +20,10 @@ import {
   faqs,
   lengthCategories,
   lengthScale,
+  priceNote,
   services,
-  whatsappForService,
 } from './site-content';
+import type { ServiceExtra, ServiceVariant } from './site-content';
 import { resultPairs } from './results-data';
 import { googleMapsReviewsUrl, googleReviews } from './reviews-data';
 import ResultsCarousel from './results-carousel';
@@ -43,6 +44,61 @@ const navItems = [
 const headlinePhrases = ['More shine.', 'Less frizz.', 'Soft hair.'] as const;
 
 const BOOKING_FORM_ID = 'booking-form';
+
+const KERATIN_GROUP = 'Keratin / Hair Botox';
+
+function ServiceDetailText({
+  lead,
+  paragraphs,
+  listLabel,
+  list,
+  idealFor,
+  closingNote,
+  extra,
+}: {
+  lead: string;
+  paragraphs: readonly string[];
+  listLabel: string;
+  list: readonly string[];
+  idealFor: string;
+  closingNote?: string | null;
+  extra?: ServiceExtra | null;
+}) {
+  return (
+    <div className="dialog-detail">
+      <p className="dialog-lead">{lead}</p>
+      {paragraphs.map((paragraph) => (
+        <p className="dialog-text" key={paragraph}>
+          {paragraph}
+        </p>
+      ))}
+
+      <div className="dialog-list-block">
+        <p className="dialog-list-label">{listLabel}:</p>
+        <ul className="dialog-list">
+          {list.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </div>
+
+      <p className="dialog-ideal">
+        <span className="dialog-ideal-label">Ideal for:</span> {idealFor}
+      </p>
+
+      {closingNote && <p className="dialog-text">{closingNote}</p>}
+
+      {extra && (
+        <div
+          className={`dialog-callout${extra.tone === 'warning' ? ' dialog-callout-warning' : ''}`}
+        >
+          <p className="dialog-callout-title">{extra.title}</p>
+          <p className="dialog-callout-body">{extra.body}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function useInViewOnce<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
@@ -82,10 +138,12 @@ export default function Home() {
   const mobilePanelRef = useRef<HTMLDivElement>(null);
   const menuReturnFocusRef = useRef<HTMLElement | null>(null);
   const [activeService, setActiveService] = useState<Service | null>(null);
+  const [activeVariantId, setActiveVariantId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('#top');
   const [bookingName, setBookingName] = useState('');
   const [bookingService, setBookingService] = useState<string>(bookingServices[4]);
+  const [bookingClarification, setBookingClarification] = useState('');
   const [bookingDate, setBookingDate] = useState('');
   const [bookingComment, setBookingComment] = useState('');
   const [bookingError, setBookingError] = useState('');
@@ -193,6 +251,7 @@ export default function Home() {
     previousOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     setActiveService(service);
+    setActiveVariantId(service.variants ? service.variants[0].id : null);
     window.requestAnimationFrame(() => {
       const dialog = dialogRef.current;
       if (dialog && !dialog.open) dialog.showModal();
@@ -203,12 +262,14 @@ export default function Home() {
   const restoreAfterDialog = () => {
     document.body.style.overflow = previousOverflowRef.current;
     setActiveService(null);
+    setActiveVariantId(null);
     returnFocusRef.current?.focus();
   };
 
-  const scrollToBooking = (service?: string) => {
+  const scrollToBooking = (service?: string, clarification?: string) => {
     if (service && (bookingServices as readonly string[]).includes(service)) {
       setBookingService(service);
+      setBookingClarification(clarification ?? '');
     }
     setBookingError('');
     setMobileMenuOpen(false);
@@ -236,6 +297,8 @@ export default function Home() {
     const url = bookingWhatsAppUrl({
       name: trimmedName,
       service: bookingService,
+      clarification:
+        bookingService === KERATIN_GROUP && bookingClarification ? bookingClarification : undefined,
       date: bookingDate,
       comment: bookingComment,
     });
@@ -564,8 +627,8 @@ export default function Home() {
               <h2 id="services-title">Choose a treatment <em>to explore.</em></h2>
             </div>
             <p className="section-aside">
-              Four services, with prices set by hair-length category. Select a card for
-              the full price list.
+              Four services, with prices set by hair-length category. Select a card to
+              read the full description and price list.
             </p>
           </div>
 
@@ -616,10 +679,7 @@ export default function Home() {
               </article>
             ))}
           </div>
-          <p className="price-note">
-            Prices depend on hair length. Please message me to confirm your hair length
-            category and the final price.
-          </p>
+          <p className="price-note">{priceNote}</p>
         </div>
       </section>
 
@@ -768,7 +828,10 @@ export default function Home() {
                   id="booking-service"
                   name="service"
                   value={bookingService}
-                  onChange={(event) => setBookingService(event.target.value)}
+                  onChange={(event) => {
+                    setBookingService(event.target.value);
+                    if (event.target.value !== KERATIN_GROUP) setBookingClarification('');
+                  }}
                   required
                 >
                   {bookingServices.map((option) => (
@@ -776,6 +839,23 @@ export default function Home() {
                   ))}
                 </select>
               </div>
+              {bookingService === KERATIN_GROUP && (
+                <div className="booking-field">
+                  <label htmlFor="booking-clarification">
+                    Keratin or Hair Botox? <span className="optional-label">(optional)</span>
+                  </label>
+                  <select
+                    id="booking-clarification"
+                    name="clarification"
+                    value={bookingClarification}
+                    onChange={(event) => setBookingClarification(event.target.value)}
+                  >
+                    <option value="">Help me choose</option>
+                    <option value="Keratin Hair Straightening">Keratin Hair Straightening</option>
+                    <option value="Hair Botox">Hair Botox</option>
+                  </select>
+                </div>
+              )}
               <div className="booking-field">
                 <label htmlFor="booking-date">Preferred date <span className="optional-label">(optional)</span></label>
                 <input
@@ -982,77 +1062,159 @@ export default function Home() {
             </div>
 
             <div className="dialog-body">
-              <div className="dialog-grid">
-                <div className="dialog-visual">
-                  <figure className="dialog-media">
-                    <Image
-                      src={activeService.image.src}
-                      alt={activeService.image.alt}
-                      fill
-                      sizes="(max-width: 860px) calc(100vw - 64px), 420px"
-                      className="dialog-media-image"
-                    />
-                    <figcaption className="image-caption">{activeService.image.caption}</figcaption>
-                  </figure>
-                  <p className="dialog-origin">{activeService.image.origin}</p>
-                  <h2 id="dialog-title">{activeService.title}</h2>
-                  <p className="dialog-intro">{activeService.description}</p>
-                </div>
+              <figure className="dialog-media">
+                <Image
+                  src={activeService.image.src}
+                  alt={activeService.image.alt}
+                  fill
+                  sizes="(max-width: 860px) calc(100vw - 64px), 892px"
+                  className="dialog-media-image"
+                />
+                <figcaption className="image-caption">{activeService.image.caption}</figcaption>
+              </figure>
+              <p className="dialog-origin">{activeService.image.origin}</p>
 
-                <div className="dialog-prices">
-                  <p className="eyebrow"><span className="eyebrow-rule" aria-hidden="true" /> PRICES · GBP</p>
-                  <div className="price-table-wrap">
-                    <table className="price-table">
-                      <caption>Prices in GBP by hair-length category</caption>
-                      <thead>
-                        <tr><th scope="col">Length category</th><th scope="col">Price</th></tr>
-                      </thead>
-                      <tbody>
-                        {lengthCategories.map((category, index) => (
-                          <tr key={category}>
-                            <th scope="row">Category {category}</th>
-                            <td>£{activeService.prices[index]}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+              <h2 id="dialog-title">{activeService.title}</h2>
+
+              {activeService.variants ? (
+                <>
+                  <div className="dialog-tabs" role="tablist" aria-label="Choose a treatment option">
+                    {activeService.variants.map((variant: ServiceVariant) => {
+                      const isSelected = variant.id === activeVariantId;
+                      return (
+                        <button
+                          key={variant.id}
+                          type="button"
+                          role="tab"
+                          id={`service-tab-${variant.id}`}
+                          aria-selected={isSelected}
+                          aria-controls={`service-panel-${variant.id}`}
+                          tabIndex={isSelected ? 0 : -1}
+                          className={`dialog-tab${isSelected ? ' is-active' : ''}`}
+                          onClick={() => setActiveVariantId(variant.id)}
+                          onKeyDown={(event) => {
+                            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+                            event.preventDefault();
+                            const tabs = activeService.variants ?? [];
+                            const currentIndex = tabs.findIndex((tab) => tab.id === activeVariantId);
+                            const nextIndex =
+                              event.key === 'ArrowRight'
+                                ? (currentIndex + 1) % tabs.length
+                                : (currentIndex - 1 + tabs.length) % tabs.length;
+                            const nextTab = tabs[nextIndex];
+                            setActiveVariantId(nextTab.id);
+                            window.requestAnimationFrame(() => {
+                              document
+                                .getElementById(`service-tab-${nextTab.id}`)
+                                ?.focus();
+                            });
+                          }}
+                        >
+                          {variant.label}
+                        </button>
+                      );
+                    })}
                   </div>
+                  {activeService.variants.map((variant: ServiceVariant) => {
+                    const isSelected = variant.id === activeVariantId;
+                    return (
+                      <div
+                        key={variant.id}
+                        role="tabpanel"
+                        id={`service-panel-${variant.id}`}
+                        aria-labelledby={`service-tab-${variant.id}`}
+                        hidden={!isSelected}
+                        className="dialog-panel"
+                      >
+                        {isSelected && (
+                          <>
+                            <h3 className="dialog-panel-title">{variant.label}</h3>
+                            <ServiceDetailText
+                              lead={variant.lead}
+                              paragraphs={variant.paragraphs}
+                              listLabel={variant.listLabel}
+                              list={variant.list}
+                              idealFor={variant.idealFor}
+                            />
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                activeService.detail && (
+                  <ServiceDetailText
+                    lead={activeService.detail.lead}
+                    paragraphs={activeService.detail.paragraphs}
+                    listLabel={activeService.detail.listLabel}
+                    list={activeService.detail.list}
+                    idealFor={activeService.detail.idealFor}
+                    closingNote={activeService.detail.closingNote}
+                    extra={activeService.detail.extra}
+                  />
+                )
+              )}
 
-                  {activeService.densitySurcharge && (
-                    <p className="surcharge-note">
-                      Thick hair surcharge: {activeService.densitySurcharge}.
-                    </p>
-                  )}
-
-                  <div className="length-block">
-                    <p className="length-title">{lengthScale.label}</p>
-                    <ol className="length-scale" aria-label="Hair length categories 1 to 5">
-                      {lengthCategories.map((category) => (
-                        <li className="length-step" key={category}>
-                          <span className="length-bar" aria-hidden="true" />
-                          <span className="length-step-label">{category}</span>
-                        </li>
+              <div className="dialog-prices">
+                <p className="eyebrow"><span className="eyebrow-rule" aria-hidden="true" /> PRICES · GBP</p>
+                <div className="price-table-wrap">
+                  <table className="price-table">
+                    <caption>Prices in GBP by hair-length category</caption>
+                    <thead>
+                      <tr><th scope="col">Hair-length category</th><th scope="col">Price</th></tr>
+                    </thead>
+                    <tbody>
+                      {lengthCategories.map((category, index) => (
+                        <tr key={category}>
+                          <th scope="row">Category {category}</th>
+                          <td>£{activeService.prices[index]}</td>
+                        </tr>
                       ))}
-                    </ol>
-                    <p className="length-legend" aria-hidden="true">
-                      <span>{lengthScale.legendStart}</span>
-                      <span>{lengthScale.legendEnd}</span>
-                    </p>
-                    <p className="length-hint">{lengthScale.hint} {lengthScale.note}</p>
-                  </div>
-
-                  <button
-                    className="button button-gold dialog-book"
-                    type="button"
-                    onClick={() => {
-                      const serviceTitle = activeService.title;
-                      dialogRef.current?.close();
-                      window.setTimeout(() => scrollToBooking(serviceTitle), 80);
-                    }}
-                  >
-                    <MessageCircle size={17} aria-hidden="true" /> Book this treatment
-                  </button>
+                    </tbody>
+                  </table>
                 </div>
+
+                {activeService.densitySurcharge && (
+                  <p className="surcharge-note">
+                    Thick hair surcharge: {activeService.densitySurcharge}.
+                  </p>
+                )}
+
+                <div className="length-block">
+                  <p className="length-title">{lengthScale.label}</p>
+                  <ol className="length-scale" aria-label="Hair length categories 1 to 5">
+                    {lengthCategories.map((category) => (
+                      <li className="length-step" key={category}>
+                        <span className="length-bar" aria-hidden="true" />
+                        <span className="length-step-label">{category}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="length-legend" aria-hidden="true">
+                    <span>{lengthScale.legendStart}</span>
+                    <span>{lengthScale.legendEnd}</span>
+                  </p>
+                  <p className="length-hint">{lengthScale.hint}</p>
+                </div>
+
+                <p className="surcharge-note dialog-price-note">{priceNote}</p>
+
+                <button
+                  className="button button-gold dialog-book"
+                  type="button"
+                  onClick={() => {
+                    const serviceTitle = activeService.bookingService;
+                    const clarification = activeService.variants
+                      ? (activeService.variants.find((variant) => variant.id === activeVariantId)
+                          ?.label ?? '')
+                      : '';
+                    dialogRef.current?.close();
+                    window.setTimeout(() => scrollToBooking(serviceTitle, clarification), 80);
+                  }}
+                >
+                  <MessageCircle size={17} aria-hidden="true" /> Book this treatment
+                </button>
               </div>
             </div>
           </div>

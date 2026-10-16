@@ -2940,24 +2940,17 @@ h2 em {
   padding: 2px clamp(18px, 3vw, 34px) clamp(26px, 3vw, 38px);
 }
 
-.dialog-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: clamp(24px, 3vw, 38px);
-  align-items: start;
-}
-
-.dialog-media {
+.service-dialog .dialog-media {
   position: relative;
   margin: 0;
   overflow: hidden;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 21 / 9;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: #131211;
 }
 
-.dialog-origin {
+.service-dialog .dialog-origin {
   margin: 10px 0 0;
   color: var(--muted);
   font-size: 10px;
@@ -2973,15 +2966,172 @@ h2 em {
   line-height: 1.14;
 }
 
-.dialog-intro {
-  margin: 0;
+/* ---- Tabs: Keratin / Hair Botox ---- */
+.dialog-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 6px;
+}
+
+.dialog-tab {
+  min-height: 42px;
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: border-color 200ms ease, color 200ms ease, background 200ms ease;
+}
+
+.dialog-tab:hover {
+  border-color: rgba(196, 162, 107, 0.6);
+  color: var(--ivory);
+}
+
+.dialog-tab.is-active {
+  border-color: var(--gold);
+  background: rgba(196, 162, 107, 0.14);
+  color: var(--gold);
+}
+
+.dialog-panel-title {
+  margin: 18px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--gold);
+}
+
+/* ---- Long-form modal copy ---- */
+.service-dialog h2,
+.dialog-tabs,
+.dialog-panel,
+.dialog-detail {
+  max-width: 760px;
+}
+
+.dialog-detail {
+  margin-top: 8px;
+}
+
+.dialog-lead {
+  margin: 14px 0 0;
+  color: var(--ivory);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.75;
+}
+
+.dialog-text {
+  margin: 12px 0 0;
   color: var(--muted);
   font-size: 13.5px;
   line-height: 1.8;
 }
 
+.dialog-list-block {
+  margin-top: 18px;
+}
+
+.dialog-list-label {
+  margin: 0 0 8px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.dialog-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dialog-list li {
+  position: relative;
+  padding: 0 0 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.dialog-list li + li {
+  margin-top: 6px;
+}
+
+.dialog-list li::before {
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--gold);
+}
+
+.dialog-ideal {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.dialog-ideal-label {
+  color: var(--ivory);
+  font-weight: 600;
+}
+
+/* ---- Callout: "Not recommended for" / "Which combination" ---- */
+.dialog-callout {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dialog-callout-warning {
+  border-color: rgba(196, 162, 107, 0.5);
+  background: rgba(196, 162, 107, 0.08);
+}
+
+.dialog-callout-title {
+  margin: 0 0 6px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.dialog-callout-body {
+  margin: 0;
+  color: var(--ivory);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+/* ---- Prices block ---- */
+.dialog-prices {
+  margin-top: 28px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
 .dialog-prices .eyebrow {
   margin-bottom: 5px;
+}
+
+.dialog-price-note {
+  margin-top: 16px;
 }
 
 .price-table-wrap {
@@ -3135,12 +3285,7 @@ h2 em {
     border-radius: 20px;
   }
 
-  .dialog-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .dialog-media {
+  .service-dialog .dialog-media {
     aspect-ratio: 16 / 9;
     border-radius: 14px;
   }
@@ -3150,8 +3295,19 @@ h2 em {
     font-size: clamp(25px, 6.6vw, 33px);
   }
 
-  .dialog-intro {
+  .dialog-lead,
+  .dialog-text {
     font-size: 13px;
+  }
+
+  .dialog-tabs {
+    gap: 8px;
+  }
+
+  .dialog-tab {
+    flex: 1 1 auto;
+    padding-inline: 12px;
+    font-size: 10.5px;
   }
 
   .dialog-book {
