@@ -508,7 +508,7 @@ export default function Home() {
           </svg>
           <figure className="about-media-mask">
             <Image
-              src="/images/about-yelyzaveta.jpg"
+              src="/images/hero-2.jpg"
               alt="Portrait of Yelyzaveta"
               fill
               sizes="(max-width: 860px) calc(100vw - 40px), 480px"
