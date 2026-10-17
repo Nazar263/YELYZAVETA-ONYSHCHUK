@@ -488,10 +488,15 @@ export default function Home() {
         <div className="hero-copy">
           <p className="eyebrow"><span className="eyebrow-rule" /> LONDON · E14 9TS</p>
           <h1 id="hero-title" className="hero-title">
-            <span className="hero-title-line hero-title-static">Your hair.</span>
-            <span className="hero-title-line hero-title-rotator">
+            <span className="hero-title-line hero-title-static">
+              Keratin &amp; Hair Botox in London
+            </span>
+            <span
+              className="hero-title-line hero-title-rotator"
+              aria-hidden="true"
+            >
               <span className="rotator-sizer" aria-hidden="true">More shine.</span>
-              <span className="rotator-phrase" key={phraseIndex}>
+              <span className="rotator-phrase" key={phraseIndex} aria-hidden="true">
                 {headlinePhrases[phraseIndex]}
               </span>
             </span>
@@ -874,7 +879,7 @@ export default function Home() {
                   id="booking-comment"
                   name="comment"
                   rows={3}
-                  placeholder="Anything I should know about your hair?"
+                  placeholder="Your hair goals or booking preferences (no medical details)"
                   value={bookingComment}
                   onChange={(event) => setBookingComment(event.target.value)}
                 />
@@ -888,7 +893,7 @@ export default function Home() {
               <p className="booking-hint">
                 WhatsApp opens with a ready message from your details.
                 You press Send yourself. Final time is agreed in chat.
-                Nothing is saved on a server or in the browser.{' '}
+                This website does not save your form entries. Your details are passed to WhatsApp when it opens.{' '}
                 <a href="/privacy">Privacy Policy</a>
               </p>
             </form>
@@ -1024,9 +1029,9 @@ export default function Home() {
             title: "Information",
             links: [
               {
-                label: "London",
-                href: "https://maps.app.goo.gl/nsRBmmsTSsB1LGDc8",
-                icon: "location",
+                label: 'London',
+                href: contact.maps,
+                icon: 'location',
                 external: true,
               },
               { label: "Privacy Policy", href: "/privacy", icon: "document" },

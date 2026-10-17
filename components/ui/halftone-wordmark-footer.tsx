@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { contact } from "@/app/site-content"
 
 export interface HalftonePalette {
   background: string
@@ -91,7 +92,7 @@ const DEFAULT_COLUMNS: FooterColumn[] = [
     links: [
       {
         label: "London",
-        href: "https://maps.app.goo.gl/nsRBmmsTSsB1LGDc8",
+        href: contact.maps,
         icon: "location",
         external: true,
       },

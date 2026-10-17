@@ -81,11 +81,7 @@ function CardText({
   );
 }
 
-/**
- * Reviews cylinder — adapts TiltedGridHero's cylindrical loop for whole HTML cards.
- * Cards are NOT sliced; the whole card is the tile. It streams right-to-left,
- * flat in the centre, angled at the edges, with edge fade only.
- */
+/** Cylindrical loop of intact review cards, with faded edges. */
 export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
   const baseTileHeight = 62;
   const baseAspect = 1.42;
@@ -232,7 +228,6 @@ export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
           {Array.from({ length: columns }, (_, t) => {
             const first = columns - 1 - t;
             const reviewIndex = (shown[t] ?? first) % reviews.length;
-            // handle negative modulo
             const idx = ((reviewIndex % reviews.length) + reviews.length) % reviews.length;
             const review = reviews[idx]!;
             return (
@@ -255,7 +250,6 @@ export default function ReviewsArc({ reviews }: { reviews: GoogleReview[] }) {
                   });
                 }}
               >
-                {/* Whole card, not sliced */}
                 <article
                   className="rv-card rv-card--cylinder"
                   aria-label={`${idx + 1} of ${reviews.length}: ${review.author}`}

@@ -3,29 +3,11 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-/* ── the curved row ──────────────────────────────────────────────
- * Scroll Tilted Grid turned on its side, with the tilt drawn as a curve.
- * One row of images streams from right to left around the inside of a
- * cylinder. The centre faces you flat, the ends bend toward you so each
- * end image curves along its length, and the ends fade into the page.
- *
- * A CSS box can't bend, so every tile is cut into SLICES vertical strips,
- * each a flat facet of the cylinder showing its share of the image. The
- * strips sit still inside their tile, each turned its own few degrees
- * round the cylinder's axis, and the tile (preserve-3d) is what moves: one
- * rotateY about that same axis carries the whole tile along the arc. A
- * tile is one animation, so its strips can never drift apart or show
- * different images. Only a tile's delay differs, and that sets where on
- * the arc it sits. The band is transform-only on the compositor; the fade
- * is a static mask over it.
- *
- * The only JS is a ResizeObserver that sizes the loop, and a handler that
- * hands a tile its next image each time it wraps, out of sight.
- * ─────────────────────────────────────────────────────────────── */
-
-// Strips per tile. Each is a few degrees of arc, too little to read as a
-// facet; fewer starts to show corners along the top and bottom edges. A
-// tight curve wraps a tile round a wide arc, so it needs this many.
+/**
+ * Images follow a cylindrical path. Vertical strips approximate each curved
+ * surface; animating the parent keeps the strips aligned. Images change when
+ * tiles wrap outside the visible area.
+ */
 export const SLICES = 16;
 
 // Camera distance from the screen, as a multiple of the cylinder's radius.

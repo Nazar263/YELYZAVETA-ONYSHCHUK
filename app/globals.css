@@ -891,7 +891,7 @@ h2 em {
   align-content: start;
 }
 
-/* ---- Services & Prices: card entrance (plays once, equal height) ---- */
+/* Service card entrance */
 /* Base state stays visible so content is never hidden if animation fails */
 .service-card {
   display: flex;
@@ -1789,7 +1789,7 @@ h2 em {
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.50), 0 0 0 1px rgba(196, 162, 107, 0.35);
 }
 
-/* New cylinder variant — whole HTML card as tile, not sliced */
+/* Review card cylinder */
 .rv-card--cylinder {
   position: relative !important;
   top: auto !important;
@@ -2332,7 +2332,7 @@ h2 em {
   text-underline-offset: 4px;
 }
 
-/* Legacy contact rows kept for fallback — new single map card below */
+/* Contact rows */
 .contact-details {
   display: none;
 }
@@ -2433,7 +2433,7 @@ h2 em {
   text-underline-offset: 3px;
 }
 
-/* --- New single mini-map card (replaces duplicated address blocks) --- */
+/* Contact map card */
 .contact-map-card {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -2966,7 +2966,7 @@ h2 em {
   line-height: 1.14;
 }
 
-/* ---- Tabs: Keratin / Hair Botox ---- */
+/* Treatment tabs */
 .dialog-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -3009,7 +3009,7 @@ h2 em {
   color: var(--gold);
 }
 
-/* ---- Long-form modal copy ---- */
+/* Treatment descriptions */
 .service-dialog h2,
 .dialog-tabs,
 .dialog-panel,
@@ -3090,7 +3090,7 @@ h2 em {
   font-weight: 600;
 }
 
-/* ---- Callout: "Not recommended for" / "Which combination" ---- */
+/* Treatment callouts */
 .dialog-callout {
   margin-top: 20px;
   padding: 16px 18px;
@@ -3119,7 +3119,7 @@ h2 em {
   line-height: 1.75;
 }
 
-/* ---- Prices block ---- */
+/* Treatment prices */
 .dialog-prices {
   margin-top: 28px;
   padding-top: 4px;
@@ -3722,7 +3722,7 @@ h2 em {
   }
 
   .hero-title-line {
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .hero-rotator,
@@ -4126,7 +4126,7 @@ h2 em {
   }
 }
 
-/* Mobile sticky Book bar 48-52px */
+/* Mobile booking bar */
 .mobile-book-bar {
   display: none;
 }
@@ -4235,7 +4235,7 @@ h2 em {
   }
 }
 
-/* ---- Hero collage entrance animation ---- */
+/* Hero collage entrance */
 .hero-media {
   position: relative;
   animation: none;
