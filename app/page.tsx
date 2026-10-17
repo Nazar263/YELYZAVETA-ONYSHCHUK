@@ -486,7 +486,7 @@ export default function Home() {
 
       <section className="hero section-wrap" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow"><span className="eyebrow-rule" /> LONDON · E14 9TS</p>
+          <p className="eyebrow"><span className="eyebrow-rule" /> LONDON · E14 9RP</p>
           <h1 id="hero-title" className="hero-title">
             <span className="hero-title-line hero-title-static">
               Keratin &amp; Hair Botox in London
@@ -931,7 +931,7 @@ export default function Home() {
                   <iframe
                     id="location-map"
                     className="location-map"
-                    title="Brunetkaa_hair on Google Maps, London E14 9TS"
+                    title="Brunetkaa_hair on Google Maps, London E14 9RP"
                     src={contact.mapEmbed}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"

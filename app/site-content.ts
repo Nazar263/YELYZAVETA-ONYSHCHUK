@@ -2,12 +2,12 @@ export const contact = {
   whatsapp: 'https://wa.me/447988884136',
   phone: 'tel:+447988884136',
   instagram: 'https://www.instagram.com/brunetkaa_hair/',
-  maps: 'https://maps.google.com/maps?q=Unit+12+Skylines+Village,+Limeharbour,+London,+E14+9TS',
+  maps: 'https://maps.app.goo.gl/nsRBmmsTSsB1LGDc8?g_st=ic',
   mapEmbed:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2484!2d-0.01283!3d51.4992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1sUnit+12+Skylines+Village,+London+E14+9TS!2sBrunetkaa_Hair_Skylines_Village!5e0!3m2!1suk!2sua!4v1792073859597!5m2!1suk!2sua',
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2483.9197623794375!2d-0.0175522!3d51.496339899999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876030053d5cf61%3A0x4f0746b50daa1c5d!2sBrunetkaa_hair!5e0!3m2!1suk!2sua!4v1792073859597!5m2!1suk!2sua',
   generalMessage:
     "Hi Yelyzaveta! I'd like to book a hair treatment. Could you help me choose a service and an appointment time?",
-  address: 'Unit 12 Skylines Village, London E14 9TS, United Kingdom',
+  address: 'London E14 9RP, United Kingdom',
 };
 
 const illustrativeOrigin =

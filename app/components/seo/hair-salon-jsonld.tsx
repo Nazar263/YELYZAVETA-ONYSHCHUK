@@ -10,10 +10,9 @@ export function HairSalonJsonLd() {
     telephone: '+44 7988 884136',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Unit 12 Skylines Village',
       addressLocality: 'London',
       addressRegion: 'London',
-      postalCode: 'E14 9TS',
+      postalCode: 'E14 9RP',
       addressCountry: 'GB',
     },
     sameAs: [
