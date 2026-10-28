@@ -655,6 +655,7 @@ export default function Home() {
                       fill
                       sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1240px) calc(50vw - 44px), 570px"
                       className="service-media-image"
+                      loading="eager"
                     />
                   </div>
                   <figcaption className="image-caption reveal-head">{service.image.caption}</figcaption>
