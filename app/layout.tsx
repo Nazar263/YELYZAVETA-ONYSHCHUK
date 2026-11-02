@@ -23,9 +23,9 @@ export const metadata: Metadata = {
     url: 'https://www.brunetkaahair.com/',
     images: [
       {
-        url: 'https://www.brunetkaahair.com/images/portrait.jpg',
-        width: 853,
-        height: 1280,
+        url: 'https://www.brunetkaahair.com/images/social-preview-2026.png',
+        width: 1200,
+        height: 630,
         alt: 'Brunetkaa Hair — portrait of Yelyzaveta, hair specialist in London E14',
       },
     ],
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: 'Keratin & Hair Botox in London E14 | Brunetkaa Hair',
     description:
       'Keratin straightening, Hair Botox, nanoplasty and personalised cold hair reconstruction in London E14. Explore prices and book with Yelyzaveta on WhatsApp.',
-    images: ['https://www.brunetkaahair.com/images/portrait.jpg'],
+    images: ['https://www.brunetkaahair.com/images/social-preview-2026.png'],
   },
   icons: {
     icon: [
